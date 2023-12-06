@@ -27,9 +27,15 @@ const VideoPlayer = () => {
     const [visualization, setVisualization] = useState(null);
     const [totalVisualizations, setTotalVisualizations] = useState(0);
     const [visualizationCounted, setVisualizationCounted] = useState(false);
+    const [previousURL, setPreviousURL] = useState(null);
+    const [error, setError] = useState(false);
 
-    const load = (url) => {
-        setUrl(url);
+    const load = (new_url) => {
+        if (new_url != previousURL){
+            setError(false);
+        }
+        setPreviousURL(url);
+        setUrl(new_url);
         setPlayed(0);
         setLoaded(0);
         setPip(false);
@@ -39,63 +45,27 @@ const VideoPlayer = () => {
         setPlaying(!playing);
     }
 
-    const handleStop = () => {
-        setUrl(null);
-        setPlaying(false);
-    }
-
-    const handleToggleControls = () => {
-        const url = url;
-        setControls(!controls);
-        load(url);
-    }
-
-    const handleToggleLight = () => {
-        setLight(!light);
-    }
-
-    const handleToggleLoop = () => {
-        setLoop(!loop);
-    }
-
     const handleVolumeChange = (e) => {
         setVolume(parseFloat(e.target.value));
-    }
-
-    const handleToggleMuted = () => {
-        setMuted(!muted);
-    }
-
-    const handleSetPlaybackRate = (e) => {
-        console.log('handleSetPlaybackRate', e.target.value)
-        setPlaybackRate(parseFloat(e.target.value));
     }
 
     const handleOnPlaybackRateChange = (speed) => {
         setPlaybackRate(parseFloat(speed));
     }
 
-    const handleTogglePIP = () => {
-        setPip(!pip);
-    }
-
     const handlePlay = () => {
-        console.log('onPlay')
         setPlaying(true);
     }
 
     const handleEnablePIP = () => {
-        console.log('onEnablePIP')
         setPip(true);
     }
 
     const handleDisablePIP = () => {
-        console.log('onDisablePIP')
         setPip(false);
     }
 
     const handlePause = () => {
-        console.log('onPause')
         setPlaying(false);
     }
 
@@ -113,13 +83,11 @@ const VideoPlayer = () => {
     }
 
     const handleProgress = (state) => {
-        console.log('onProgress', state)
         if (!seeking) {
             setPlayed(state.played);
             setLoaded(state.loaded);
         }
         if (state.played > 0.6 && !visualizationCounted) {
-            console.log('visualization counted')
             addVisualization();
             setTotalVisualizations(totalVisualizations + 1);
             setVisualizationCounted(true);
@@ -128,17 +96,11 @@ const VideoPlayer = () => {
     }
 
     const handleEnded = () => {
-        console.log('onEnded')
         setPlaying(loop);
     }
 
     const handleDuration = (duration) => {
-        console.log('onDuration', duration)
         setDuration(duration);
-    }
-
-    const handleClickFullscreen = () => {
-        screenfull.request(player);
     }
 
     const ref = (player) => {
@@ -150,9 +112,19 @@ const VideoPlayer = () => {
     };
 
     const handleLoad = () => {
-        console.log('handleLoad')
         load(urlInput);
     };
+
+    const handleRestart = () => {
+        setPlayed(0);
+        player.seekTo(0);
+    }
+
+    const handleError = (err) => {
+        console.error(err);
+        setError(true);
+        load(previousURL);
+    }
 
     function cleanURL(url) {
         url = url.replace("http://", "");
@@ -177,7 +149,6 @@ const VideoPlayer = () => {
             try {
                 const cleanedURL = cleanURL(url);
                 const response = await axios.get(`http://localhost:8080/visualization/${cleanedURL}`);
-                console.log("response:", response.data.visualization)
                 setVisualization(response.data.visualization);
                 setTotalVisualizations(response.data.visualization.count);
             } catch (error) {
@@ -191,7 +162,7 @@ const VideoPlayer = () => {
     return (
         <div className='app'>
             <section className='section'>
-                <h1 >React Player</h1>
+                <h1 >Ledge React Player</h1>
                 <div className='player-wrapper'>
                     <ReactPlayer
                     ref={ref}
@@ -207,20 +178,15 @@ const VideoPlayer = () => {
                     playbackRate={playbackRate}
                     volume={volume}
                     muted={muted}
-                    onReady={() => console.log('onReady')}
-                    onStart={() => console.log('onStart')}
                     onPlay={handlePlay}
                     onEnablePIP={handleEnablePIP}
                     onDisablePIP={handleDisablePIP}
                     onPause={handlePause}
-                    onBuffer={() => console.log('onBuffer')}
                     onPlaybackRateChange={handleOnPlaybackRateChange}
-                    onSeek={e => console.log('onSeek', e)}
                     onEnded={handleEnded}
-                    onError={e => console.log('onError', e)}
+                    onError={handleError}
                     onProgress={handleProgress}
                     onDuration={handleDuration}
-                    onPlaybackQualityChange={e => console.log('onPlaybackQualityChange', e)}
                     />
                 </div>
                 <table>
@@ -241,12 +207,14 @@ const VideoPlayer = () => {
                     value={urlInput}
                     onChange={handleInputChange}/>
                   <button onClick={handleLoad}>Load</button>
+                  <p style={{ color: 'red' }}>{error ? 'Invalid URL' : ''}</p>
                 </td>
               </tr>
                 <tr>
                     <th>Controls</th>
                     <td>
                     <button onClick={handlePlayPause}>{playing ? 'Pause' : 'Play'}</button>
+                    <button onClick={handleRestart}>Restart</button>
                     </td>
                 </tr>
                 <tr>
