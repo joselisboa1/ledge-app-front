@@ -36,6 +36,7 @@ const VideoPlayer = () => {
         }
         setPreviousURL(url);
         setUrl(new_url);
+        fetchData(new_url);
         setPlayed(0);
         setLoaded(0);
         setPip(false);
@@ -143,20 +144,19 @@ const VideoPlayer = () => {
         }
     
     }
+    const fetchData = async (url) => {
+        try {
+            const cleanedURL = cleanURL(url);
+            const response = await axios.get(`https://ledge-app-back.onrender.com/visualization/${cleanedURL}`);
+            setVisualization(response.data.visualization);
+            setTotalVisualizations(response.data.visualization.count);
+        } catch (error) {
+            console.error("Error fetching visualizations:", error);
+        }
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const cleanedURL = cleanURL(url);
-                const response = await axios.get(`https://ledge-app-back.onrender.com/visualization/${cleanedURL}`);
-                setVisualization(response.data.visualization);
-                setTotalVisualizations(response.data.visualization.count);
-            } catch (error) {
-                console.error("Error fetching visualizations:", error);
-            }
-        };
-
-        fetchData();
+        fetchData(url);
     }, []);
 
     return (
