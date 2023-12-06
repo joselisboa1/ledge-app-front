@@ -1,10 +1,11 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ReactPlayer from "react-player";
 import screenfull from "screenfull";
 import Duration from './Duration';
 import './videoPlayer.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
 
 const VideoPlayer = () => {
 
@@ -23,7 +24,8 @@ const VideoPlayer = () => {
     const [seeking, setSeeking] = useState(false);
     const [player, setPlayer] = useState(null);
     const [urlInput, setUrlInput] = useState(null);
-    const [visualizations, setVisualizations] = useState(0);
+    const [visualization, setVisualization] = useState(null);
+    const [totalVisualizations, setTotalVisualizations] = useState(0);
     const [visualizationCounted, setVisualizationCounted] = useState(false);
 
     const load = (url) => {
@@ -118,7 +120,8 @@ const VideoPlayer = () => {
         }
         if (state.played > 0.6 && !visualizationCounted) {
             console.log('visualization counted')
-            setVisualizations(visualizations + 1);
+            addVisualization();
+            setTotalVisualizations(totalVisualizations + 1);
             setVisualizationCounted(true);
         }
 
@@ -150,6 +153,40 @@ const VideoPlayer = () => {
         console.log('handleLoad')
         load(urlInput);
     };
+
+    function cleanURL(url) {
+        url = url.replace("http://", "");
+    
+        url = url.replace(/[^a-zA-Z0-9]/g, '');
+    
+        return url;
+    }
+
+    const addVisualization = async () => {
+        try {
+            const response = await axios.post(`http://localhost:8080/visualization/${visualization.id}`);
+            console.log("response:", response.data.message)
+        } catch (error) {
+            console.error("Error fetching visualizations:", error);
+        }
+    
+    }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const cleanedURL = cleanURL(url);
+                const response = await axios.get(`http://localhost:8080/visualization/${cleanedURL}`);
+                console.log("response:", response.data.visualization)
+                setVisualization(response.data.visualization);
+                setTotalVisualizations(response.data.visualization.count);
+            } catch (error) {
+                console.error("Error fetching visualizations:", error);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     return (
         <div className='app'>
@@ -192,7 +229,7 @@ const VideoPlayer = () => {
                     <th>Visualizations</th>
                     <td>
                         <FontAwesomeIcon icon={faEye} style={{ fontSize: '20px', marginRight: '8px' }} />
-                        {visualizations}
+                        {totalVisualizations}
                     </td>
                 </tr>
                 <tr>
