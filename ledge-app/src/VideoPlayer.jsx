@@ -136,7 +136,7 @@ const VideoPlayer = () => {
 
     const addVisualization = async () => {
         try {
-            const response = await axios.post(`http://localhost:8080/visualization/${visualization.id}`);
+            const response = await axios.post(`https://ledge-app-back.onrender.com/visualization/${visualization.id}`);
             console.log("response:", response.data.message)
         } catch (error) {
             console.error("Error fetching visualizations:", error);
@@ -148,7 +148,7 @@ const VideoPlayer = () => {
         const fetchData = async () => {
             try {
                 const cleanedURL = cleanURL(url);
-                const response = await axios.get(`http://localhost:8080/visualization/${cleanedURL}`);
+                const response = await axios.get(`https://ledge-app-back.onrender.com/visualization/${cleanedURL}`);
                 setVisualization(response.data.visualization);
                 setTotalVisualizations(response.data.visualization.count);
             } catch (error) {
