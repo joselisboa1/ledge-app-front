@@ -15,3 +15,4 @@ El link a el deploy del backend ya se encuentra incluido por lo que solo se debe
 npm start
 ```
 ## Link a deploy
+https://main.d3qhe2sreq278k.amplifyapp.com/
