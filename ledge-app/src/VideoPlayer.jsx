@@ -9,7 +9,7 @@ import axios from 'axios';
 
 const VideoPlayer = () => {
 
-    const [url, setUrl] = useState('https://www.youtube.com/watch?v=ZA7ZKB8Mo9k&ab_channel=FeidVEVO');
+    const [url, setUrl] = useState('https://www.youtube.com/watch?v=RK27RX54EJU&ab_channel=JackMurphy');
     const [pip, setPip] = useState(false);
     const [playing, setPlaying] = useState(true);
     const [controls, setControls] = useState(false);
