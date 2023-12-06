@@ -1,0 +1,28 @@
+.player-wrapper {
+    width: 480px;
+    height: 270px;
+  }
+  
+  .react-player {
+    margin-bottom: 10px;
+    background: rgba(0, 0, 0, .1);
+  }
+
+  .app {
+    margin: auto;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 300;
+    text-align: center;
+  }
+  
+  .section {
+    display: inline-block;
+    max-width: var(--column-width);
+    margin: var(--gutter-width);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .section h1 {
+    text-align: center;
+  }
